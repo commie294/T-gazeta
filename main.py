@@ -31,24 +31,13 @@ def send_welcome(message):
     bot.reply_to(message, "Привет! Отправь мне стихотворение, и я анонимно перешлю его в канал.")
 
 @bot.message_handler(func=lambda message: True)
-def echo_message(message):
-    user_id = message.from_user.id
-    user_messages[user_id] = message.text
-    bot.reply_to(message, "Ваше сообщение будет анонимно отправлено. Нажмите /send для отправки.")
-
-@bot.message_handler(commands=['send'])
-def send_anonymous_message(message):
-    user_id = message.from_user.id
-    if user_id in user_messages:
-        anonymous_message = user_messages[user_id]
+def forward_message(message):
+    if message.chat.type == 'private' and not message.is_command():
         try:
-            bot.send_message(CHANNEL_ID, anonymous_message)
-            bot.reply_to(message, "Сообщение успешно отправлено!")
-            del user_messages[user_id] # Очищаем сообщение после отправки
+            bot.send_message(CHANNEL_ID, message.text)
+            bot.reply_to(message, "Стихотворение анонимно отправлено!")
         except telebot.apihelper.ApiTelegramException as e:
             bot.reply_to(message, f"Произошла ошибка при отправке сообщения: {e}")
-    else:
-        bot.reply_to(message, "Вы еще не отправили мне сообщение для пересылки.")
 
 if __name__ == '__main__':
     print("Бот запущен с токеном:", BOT_TOKEN, "и ID канала:", CHANNEL_ID)

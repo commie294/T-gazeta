@@ -2,10 +2,8 @@ import telebot
 import os
 from dotenv import load_dotenv
 
-# Загружаем переменные окружения из файла .env (если он есть)
 load_dotenv()
 
-# Получаем токен бота и ID канала из переменных окружения
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 
@@ -16,7 +14,6 @@ if not CHANNEL_ID:
     print("Ошибка: Не найдена переменная окружения CHANNEL_ID")
     exit()
 
-# Убедитесь, что CHANNEL_ID является целым числом (и, вероятно, отрицательным)
 try:
     CHANNEL_ID = int(CHANNEL_ID)
 except ValueError:
@@ -24,7 +21,6 @@ except ValueError:
     exit()
 
 bot = telebot.TeleBot(BOT_TOKEN)
-user_messages = {}
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -32,7 +28,7 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: True)
 def forward_message(message):
-    if message.chat.type == 'private' and not message.is_command():
+    if message.chat.type == 'private' and not message.text.startswith('/'):
         try:
             bot.send_message(CHANNEL_ID, message.text)
             bot.reply_to(message, "Стихотворение анонимно отправлено!")
